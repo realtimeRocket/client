@@ -10,13 +10,29 @@ export default new Vuex.Store({
   state: {
     roomdatabase,
     checkroom:'',
-    roomFound:false
+    playerName:'',
+    roomName:'',
+    statusGame:'',
+    gameState:''
   },
   mutations: {
     checkData(state,roomList){
       state.checkroom = roomList
       console.log(state.checkroom)
     },
+    stateGameName(state,playerName){
+      state.playerName = playerName
+    },
+    roomGameName(state,roomName){
+      state.roomName = roomName
+    },
+    status(state,status){
+      console.log(status)
+      state.statusGame = status
+    },
+    nowGameState(state,status){
+      state.gameState = status
+    }
   },
   actions: {
     checkLobby({commit},newPlayerName){
@@ -26,18 +42,29 @@ export default new Vuex.Store({
         let LobbyFound = false
         for (let i in allLobby){
           if(!allLobby[i].Player2){
-            roomdatabase(i).set({Player1:{Name:allLobby[i].Player1.Name, value: allLobby[i].Player1.value}, Player2:{Name:newPlayerName,value:50}})
-            LobbyFound = true
+            roomdatabase(i).set({Player1:{Name:allLobby[i].Player1.Name}, Player2:{Name:newPlayerName},gameState:'ready',value:550})
+            LobbyFound = true   
+            commit('nowGameState','ready')         
+            commit('status','Player2')
+            commit('stateGameName',newPlayerName)
+            commit('roomGameName',roomName)
+            console.log('masuk sini')
           }
         }
         if(!LobbyFound){
           let timestamp = new Date()
-          roomdatabase(timestamp.getTime()).set({Player1:{
+          timestamp = timestamp.getTime()
+          commit('stateGameName',newPlayerName)
+          commit('roomGameName',timestamp)
+          commit('status','Player1')
+          commit('nowGameState','not ready')
+          roomdatabase(timestamp).set({Player1:{
             Name:newPlayerName,
-            value:50
-          }})
+          },gameState:'not ready'})
+          roomdatabase(timestamp).on('value',function(snapshot){
+            console.log(snapshot.val())
+          })
         }
-
       })
       .catch(error =>{
         console.log(error)
