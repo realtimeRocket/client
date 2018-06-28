@@ -44,10 +44,13 @@ export default new Vuex.Store({
           if(!allLobby[i].Player2){
             roomdatabase(i).set({Player1:{Name:allLobby[i].Player1.Name}, Player2:{Name:newPlayerName},gameState:'ready',value:550})
             LobbyFound = true   
-            commit('nowGameState','ready')         
-            commit('status','Player2')
+            roomdatabase(i).on('value',function(snapshot){
+              commit('nowGameState',snapshot.val().gameState)
+            })         
             commit('stateGameName',newPlayerName)
             commit('roomGameName',roomName)
+            commit('nowGameState','ready')
+            commit('status','Player2')
             console.log('masuk sini')
           }
         }
@@ -57,12 +60,11 @@ export default new Vuex.Store({
           commit('stateGameName',newPlayerName)
           commit('roomGameName',timestamp)
           commit('status','Player1')
-          commit('nowGameState','not ready')
           roomdatabase(timestamp).set({Player1:{
             Name:newPlayerName,
           },gameState:'not ready'})
           roomdatabase(timestamp).on('value',function(snapshot){
-            console.log(snapshot.val())
+            commit('nowGameState',snapshot.val().gameState)
           })
         }
       })
